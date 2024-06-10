@@ -27,6 +27,7 @@ __all__ = [
 ]
 
 import math
+import os
 import pygame
 import pygame_menu
 
@@ -38,6 +39,11 @@ from pygame_menu.widgets.widget.textinput import TextInput
 
 from pygame_menu._types import Union, List, NumberType, Any, Optional, CallbackType, \
     Tuple3IntType, NumberInstance, EventVectorType, Callable
+
+coverageData = {
+    'valueChanged': {1: False},
+    'getValues': {1: False, 2: False, 3: False, 4: False},
+}
 
 # Input modes
 COLORINPUT_TYPE_HEX = 'hex'
@@ -299,6 +305,7 @@ class ColorInput(TextInput):
     def value_changed(self) -> bool:
         default = self._default_value
         if self._color_type == COLORINPUT_TYPE_HEX and '#' not in default:
+            coverageData['valueChanged'][1] = True
             default = '#' + default
         return self.get_value(as_string=True) != default
 
@@ -315,17 +322,21 @@ class ColorInput(TextInput):
         """
         assert isinstance(as_string, bool)
         if as_string:
+            coverageData['getValues'][1] = True
             return self._input_string
 
         if self._color_type == COLORINPUT_TYPE_RGB:
+            coverageData['getValues'][2] = True
             color = self._input_string.split(self._separator)
             if len(color) == 3 and color[0] != '' and color[1] != '' and color[2] != '':
+                coverageData['getValues'][3] = True
                 r, g, b = int(color[0]), int(color[1]), int(color[2])
                 if 0 <= r <= 255 and 0 <= g <= 255 and 0 <= g <= 255:
                     return r, g, b
 
         elif self._color_type == COLORINPUT_TYPE_HEX:
             if len(self._input_string) == 7:
+                coverageData['getValues'][4] = True
                 color = self._input_string[1:]
                 color = tuple(int(color[i:i + 2], 16) for i in (0, 2, 4))
                 return color[0], color[1], color[2]
@@ -705,3 +716,46 @@ class ColorInputManager(AbstractWidgetManager, ABC):
         widget.set_default_value(default)
 
         return widget
+    
+# start menu
+pygame.init()
+pygame.display.set_mode((1, 1))
+
+#values for testing valueChanged and getValues
+color_input_rgb = ColorInput(COLORINPUT_TYPE_RGB, '255,255,255')
+
+color_input_hex = ColorInput('Test', color_type=COLORINPUT_TYPE_HEX)
+color_input_hex._default_value = 'FFBFFA'  # Default value without '#'
+color_input_hex._input_string = '#000000'  # Different input string
+
+#for value changed
+color_input_hex.value_changed()
+
+#for get value
+color_input_rgb.get_value()
+color_input_rgb.get_value(as_string=True)
+
+#folder for coverage report
+coverage_report_folder = os.path.join('Own Coverage reports', 'Melisa Damian - Coverage Report')
+
+os.makedirs(coverage_report_folder, exist_ok=True)
+
+#coverage report for valueChanged and getValues
+coverage_report_path = os.path.join(coverage_report_folder, 'coverage_report_valueChanged.txt')
+with open(coverage_report_path, 'w') as f:
+    for function, branches in coverageData.items():
+        total_branches = len(branches)
+        branches_taken = sum(branches.values())
+        coverage_percentage = (branches_taken / total_branches) * 100
+        
+        f.write(f"Function {function} Coverage Report:\n")
+        f.write(f"Total Branches: {total_branches}\n")
+        f.write(f"Branches Taken: {branches_taken}\n")
+        f.write(f"Coverage Percentage: {coverage_percentage:.2f}%\n")
+        f.write("Branch Details:\n")
+        for branch, taken in branches.items():
+            f.write(f"  Branch {branch}: {'Taken' if taken else 'Not Taken'}\n")
+        f.write("\n")
+
+#quit pygame
+pygame.quit()
