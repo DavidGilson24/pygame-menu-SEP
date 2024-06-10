@@ -1,17 +1,19 @@
 Function valueChanged Coverage Report:
-Total Branches: 1
+Total Branches: 2
 Branches Taken: 1
-Coverage Percentage: 100.00%
+Coverage Percentage: 50.00%
 Branch Details:
   Branch 1: Taken
+  Branch 2: Not Taken
 
 Function getValues Coverage Report:
-Total Branches: 4
-Branches Taken: 2
-Coverage Percentage: 50.00%
+Total Branches: 5
+Branches Taken: 3
+Coverage Percentage: 60.00%
 Branch Details:
   Branch 1: Taken
   Branch 2: Taken
   Branch 3: Not Taken
   Branch 4: Not Taken
+  Branch 5: Taken
 

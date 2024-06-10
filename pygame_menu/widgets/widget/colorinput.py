@@ -41,8 +41,8 @@ from pygame_menu._types import Union, List, NumberType, Any, Optional, CallbackT
     Tuple3IntType, NumberInstance, EventVectorType, Callable
 
 coverageData = {
-    'valueChanged': {1: False},
-    'getValues': {1: False, 2: False, 3: False, 4: False},
+    'valueChanged': {1: False, 2: False},
+    'getValues': {1: False, 2: False, 3: False, 4: False, 5: False}
 }
 
 # Input modes
@@ -307,6 +307,8 @@ class ColorInput(TextInput):
         if self._color_type == COLORINPUT_TYPE_HEX and '#' not in default:
             coverageData['valueChanged'][1] = True
             default = '#' + default
+        else:
+            coverageData['valueChanged'][2] = True
         return self.get_value(as_string=True) != default
 
     def get_value(self, as_string: bool = False) -> Union[str, Tuple3IntType]:
@@ -341,6 +343,7 @@ class ColorInput(TextInput):
                 color = tuple(int(color[i:i + 2], 16) for i in (0, 2, 4))
                 return color[0], color[1], color[2]
 
+        coverageData['getValues'][5] = True
         return -1, -1, -1
 
     def is_valid(self) -> bool:
@@ -722,26 +725,22 @@ pygame.init()
 pygame.display.set_mode((1, 1))
 
 #values for testing valueChanged and getValues
-color_input_rgb = ColorInput(COLORINPUT_TYPE_RGB, '255,255,255')
-
 color_input_hex = ColorInput('Test', color_type=COLORINPUT_TYPE_HEX)
 color_input_hex._default_value = 'FFBFFA'  # Default value without '#'
 color_input_hex._input_string = '#000000'  # Different input string
-
-#for value changed
 color_input_hex.value_changed()
 
-#for get value
+#for get value as rgb
+color_input_rgb = ColorInput(COLORINPUT_TYPE_RGB, '255,255,255')
 color_input_rgb.get_value()
 color_input_rgb.get_value(as_string=True)
 
 #folder for coverage report
 coverage_report_folder = os.path.join('Own Coverage reports', 'Melisa Damian - Coverage Report')
-
 os.makedirs(coverage_report_folder, exist_ok=True)
-
 #coverage report for valueChanged and getValues
 coverage_report_path = os.path.join(coverage_report_folder, 'coverage_report_valueChanged.txt')
+
 with open(coverage_report_path, 'w') as f:
     for function, branches in coverageData.items():
         total_branches = len(branches)
